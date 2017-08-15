@@ -11,7 +11,7 @@
           <a href="javascript:void(0)" class="default cur">Default</a>
           <a href="javascript:void(0)" class="price" @click="sortGoods">
             Price 
-            <svg class="icon icon-arrow-short">
+            <svg class="icon icon-arrow-short" v-bind:class="{'sort-up':!sortFlag}">
               <use xlink:href="#icon-arrow-short"></use>
             </svg>
           </a>
@@ -66,6 +66,26 @@
       </div>
     </div>
     <div class="md-overlay" v-show="overLayFlag" @click.stop="closePop"></div>
+    <modal :mdShow="mdShow" @close = "closeModal">
+      <p slot="message">
+        请先登录,否则无法加入到购物车中
+      </p>
+      <div slot="btnGroup">
+        <a class="btn btn--m" href="javascript:;" @click="mdShow=false">关闭</a>
+      </div>
+    </modal>
+    <modal v-bind:mdShow="mdShowCart" v-on:close="closeModal">
+        <p slot="message">
+          <svg class="icon-status-ok">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-status-ok"></use>
+          </svg>
+          <span>加入购物车成功!</span>
+        </p>
+        <div slot="btnGroup">
+          <a class="btn btn--m" href="javascript:;" @click="mdShowCart = false">继续购物</a>
+          <router-link class="btn btn--m btn--red" href="javascript:;" to="/cart">查看购物车</router-link>
+        </div>
+    </modal>
     <nav-footer></nav-footer>
   </div>
 </footer>
@@ -77,6 +97,7 @@
   import NavHeader from './../components/NavHeader'
   import NavFooter from './../components/NavFooter'
   import NavBread from './../components/NavBread'
+  import Modal from './../components/Modal'
   import axios from 'axios'
 
   export default {
@@ -105,17 +126,20 @@
         filterBy: false,
         overLayFlag: false,
         sortFlag: true,
+        mdShowCart: false,
         page: 1,
         pageSize: 8,
         busy: true,
-        loading:false
+        loading:false,
+        mdShow: false
 
       }
     },
     components: {
       NavHeader,
       NavFooter,
-      NavBread
+      NavBread,
+      Modal
     },
     mounted() {
       this.getGoodsList();
@@ -183,11 +207,15 @@
         }).then((res) => {
           var res = res.data;
           if(res.status == 0){
-            alert('加入成功')
+            this.mdShowCart = true;
           }else{
-            alert(res.msg)
+            this.mdShow = true;
           }
         })
+      },
+      closeModal() {
+        this.mdShow = false;
+        this.mdShowCart = false;
       }
     }
   }
